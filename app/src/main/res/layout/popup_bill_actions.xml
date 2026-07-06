@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="8dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingVertical="6dp"
+        android:paddingHorizontal="6dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_popup_edit"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="编辑"
+            android:textColor="@color/primary_blue"
+            android:textSize="15sp"
+            android:paddingHorizontal="20dp"
+            android:minWidth="64dp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:background="#E0E0E0" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_popup_delete"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="删除"
+            android:textColor="@color/expense_red"
+            android:textSize="15sp"
+            android:paddingHorizontal="20dp"
+            android:minWidth="64dp" />
+
+        <View
+            android:id="@+id/divider_unsettle"
+            android:layout_width="1dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:background="#E0E0E0"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_popup_unsettle"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="取消结算"
+            android:textColor="#FF9800"
+            android:textSize="15sp"
+            android:paddingHorizontal="20dp"
+            android:minWidth="64dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

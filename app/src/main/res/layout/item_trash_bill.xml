@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="6dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="1dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:strokeColor="@color/card_stroke"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="10dp">
+
+        <CheckBox
+            android:id="@+id/cb_trash_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp" />
+
+        <!-- 左列：日期 -->
+        <TextView
+            android:id="@+id/tv_trash_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textColor="@color/text_secondary"
+            tools:text="06-02" />
+
+        <!-- 左列：地点 + 事项 -->
+        <TextView
+            android:id="@+id/tv_trash_desc"
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            tools:text="工地A 砌墙" />
+
+        <!-- 人员名字（居中） -->
+        <TextView
+            android:id="@+id/tv_trash_person"
+            android:layout_width="65dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="6dp"
+            android:textColor="@color/primary_teal"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="张三" />
+
+        <!-- 金额（右侧） -->
+        <TextView
+            android:id="@+id/tv_trash_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/amount_green"
+            tools:text="200.00" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

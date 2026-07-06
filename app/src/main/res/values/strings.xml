@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">个人记账本</string>
+    <string name="title_app">个人记账本</string>
+    <string name="add_bill">添加账单</string>
+    <string name="title_add_bill">添加账单</string>
+    <string name="statistics">统计</string>
+    <string name="title_statistics">统计</string>
+
+    <string name="date_label">日期</string>
+    <string name="description_hint">事项说明</string>
+    <string name="amount_hint">金额</string>
+    <string name="save">保存</string>
+    <string name="back">返回</string>
+
+    <string name="empty_list">暂无账单记录</string>
+    <string name="all">全部</string>
+    <string name="select_person">选择人员</string>
+    <string name="select_location">工作地点</string>
+    <string name="person_name">姓名</string>
+    <string name="add_person">添加人员</string>
+    <string name="add_location">添加地点</string>
+    <string name="new_person_name">输入姓名</string>
+    <string name="new_location_name">输入地点名称</string>
+
+    <string name="start_date">开始日期</string>
+    <string name="end_date">结束日期</string>
+    <string name="btn_stats">统计</string>
+
+    <string name="description_required">请输入事项说明</string>
+    <string name="amount_required">请输入金额</string>
+    <string name="person_required">请选择至少一位人员</string>
+    <string name="location_required">请选择工作地点</string>
+    <string name="save_success">保存成功</string>
+
+    <!-- Coach Mark Guide -->
+    <string name="menu_help">使用帮助</string>
+    <string name="coach_step_format">步骤 %1$d/%2$d</string>
+
+    <string name="coach_title_add">添加账单</string>
+    <string name="coach_desc_add">点击右上角的 + 号按钮，进入添加账单页面。选择日期、勾选工人、填写金额，最后点击「保存」即可记录一笔工钱。</string>
+
+    <string name="coach_title_month">切换月份</string>
+    <string name="coach_desc_month">点击 ◀ ▶ 切换月份，点击 ◀◀ ▶▶ 切换年份。也可以直接点击中间的年月文字，快速跳转到指定年月。</string>
+
+    <string name="coach_title_day">按天查看</string>
+    <string name="coach_desc_day">点击日期数字筛选当天的账单。橙色数字表示当天有记录，点击「全部」可查看整月。左右滑动屏幕也可以切换日期。</string>
+
+    <string name="coach_title_edit">编辑与管理</string>
+    <string name="coach_desc_edit">长按任意账单可编辑或删除。点击左上角菜单按钮，可使用回收站、结算账单、应用锁等功能。</string>
+
+    <string name="coach_title_stats">搜索与统计</string>
+    <string name="coach_desc_stats">点击放大镜图标可搜索历史账单。点击「统计」查看每人汇总，支持数据备份与导入。</string>
+
+    <!-- 已结账单 -->
+    <string name="menu_settle_bill">结算账单</string>
+    <string name="menu_show_settled">显示已结</string>
+    <string name="menu_show_settled_on">✓ 显示已结</string>
+    <string name="settle_dialog_title">结算账单</string>
+    <string name="settle_preview_format">共 %1$d 条记录，总额 ¥%2$s</string>
+    <string name="settle_confirm">确认结算</string>
+    <string name="settle_success">已结算 %d 条记录</string>
+    <string name="settled_watermark">已结</string>
+    <string name="unsettle_confirm_title">取消结算</string>
+    <string name="unsettle_confirm_msg">确定要将 %s 的这条账单恢复为未结状态吗？</string>
+    <string name="unsettle_success">已取消结算</string>
+    <string name="settle_no_bills">该范围内没有可结算的账单</string>
+    <string name="btn_export">备份账单</string>
+    <string name="btn_import">导入账单</string>
+    <!-- Widget -->
+    <string name="widget_add_bill">记一笔</string>
+    <string name="settle_select_person">请先选择人员</string>
+</resources>

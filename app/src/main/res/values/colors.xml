@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary palette -->
+    <color name="primary_teal">#00796B</color>
+    <color name="primary_teal_light">#48A89C</color>
+    <color name="primary_blue">#1565C0</color>
+
+    <!-- Basic -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Semantic -->
+    <color name="amount_green">#2E7D32</color>
+    <color name="expense_red">#D32F2F</color>
+
+    <!-- Surfaces -->
+    <color name="background_light">#F8F9FA</color>
+    <color name="card_stroke">#E8ECF0</color>
+    <color name="settled_bg">#F0F2F5</color>
+
+    <!-- Text -->
+    <color name="text_primary">#1C1B1F</color>
+    <color name="text_secondary">#5C6B7A</color>
+    <color name="text_hint">#8E95A0</color>
+
+    <!-- Chips -->
+    <color name="chip_selected_bg">#00796B</color>
+    <color name="chip_normal_bg">#E8ECF0</color>
+
+    <!-- Lock screen -->
+    <color name="lock_bg">#F5F7FA</color>
+
+    <!-- Misc -->
+    <color name="divider">#E8ECF0</color>
+    <color name="settled_text">#9CA3AF</color>
+    <color name="settled_watermark">#12000000</color>
+</resources>

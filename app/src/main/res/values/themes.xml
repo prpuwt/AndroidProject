@@ -1,0 +1,11 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.MyBill" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/primary_teal</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+
+    <style name="Theme.MyBill" parent="Base.Theme.MyBill" />
+</resources>
