@@ -17,3 +17,6 @@ keystore.properties
 key.txt
 *.jks
 .claude/settings.local.json
+CLAUDE.md
+AGENTS.md
+generate_report.py
