@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.mybill.view.AuroraRootLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_stats"
@@ -9,7 +9,7 @@
     android:background="@color/background_light">
 
     <!-- 顶部栏 -->
-    <LinearLayout
+    <com.example.mybill.view.AuroraTopBar
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:background="@color/primary_teal"
@@ -50,7 +50,7 @@
             android:textColor="@android:color/white"
             android:textSize="22sp" />
 
-    </LinearLayout>
+    </com.example.mybill.view.AuroraTopBar>
 
     <!-- 上部设置区域（固定） -->
     <LinearLayout
@@ -59,7 +59,7 @@
         android:orientation="vertical"
         android:padding="16dp"
         android:paddingBottom="8dp"
-        android:background="@color/background_light">
+        android:background="@android:color/transparent">
 
         <!-- 日期范围 -->
         <LinearLayout
@@ -204,8 +204,8 @@
             android:layout_marginTop="16dp"
             android:text="@string/btn_stats"
             android:textSize="16sp"
-            android:textColor="@android:color/white"
-            app:backgroundTint="@color/primary_teal"
+            android:textColor="@color/mint_button_text"
+            app:backgroundTint="@color/mint_button_bg"
             app:cornerRadius="24dp" />
 
         <!-- 页面指示器 -->
@@ -247,4 +247,4 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-</LinearLayout>
+</com.example.mybill.view.AuroraRootLayout>

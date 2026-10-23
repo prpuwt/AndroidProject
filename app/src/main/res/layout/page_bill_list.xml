@@ -14,15 +14,30 @@
         android:layoutAnimation="@anim/layout_slide_in_from_bottom"
         tools:listitem="@layout/item_bill" />
 
-    <TextView
+    <LinearLayout
         android:id="@+id/tv_page_empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/empty_list"
-        android:textSize="16sp"
-        android:textColor="@color/text_secondary"
+        android:orientation="vertical"
+        android:gravity="center"
         android:visibility="gone"
         android:layout_gravity="center"
-        android:layout_marginTop="80dp" />
+        android:layout_marginTop="40dp">
+
+        <ImageView
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:rotation="-4"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_empty_bill" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/empty_list"
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary" />
+    </LinearLayout>
 
 </FrameLayout>

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.net.Uri;
 import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
@@ -508,10 +507,15 @@ public class StatisticsActivity extends AppCompatActivity {
                 new int[]{}
         };
         chip.setChipBackgroundColor(new ColorStateList(states, new int[]{
-                ContextCompat.getColor(this, R.color.primary_teal),
-                ContextCompat.getColor(this, R.color.chip_normal_bg)}));
+                ContextCompat.getColor(this, R.color.mint_button_bg),
+                ContextCompat.getColor(this, R.color.glass_chip_bg)}));
         chip.setTextColor(new ColorStateList(states, new int[]{
-                Color.WHITE, ContextCompat.getColor(this, R.color.text_primary)}));
+                ContextCompat.getColor(this, R.color.mint_button_text),
+                ContextCompat.getColor(this, R.color.glass_chip_text)}));
+        chip.setChipStrokeColor(ColorStateList.valueOf(
+                ContextCompat.getColor(this, R.color.glass_chip_stroke)));
+        chip.setChipStrokeWidth(getResources().getDisplayMetrics().density);
+        chip.setChipCornerRadius(14 * getResources().getDisplayMetrics().density);
         chip.setCheckedIconVisible(false);
         return chip;
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.mybill.view.AuroraRootLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_search"
     android:layout_width="match_parent"
@@ -8,7 +8,7 @@
     android:background="@color/background_light">
 
     <!-- 顶部栏 -->
-    <LinearLayout
+    <com.example.mybill.view.AuroraTopBar
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:background="@color/primary_teal"
@@ -40,7 +40,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp" />
 
-    </LinearLayout>
+    </com.example.mybill.view.AuroraTopBar>
 
     <!-- 搜索输入框 -->
     <LinearLayout
@@ -112,4 +112,4 @@
         android:layout_marginTop="80dp"
         android:visibility="gone" />
 
-</LinearLayout>
+</com.example.mybill.view.AuroraRootLayout>

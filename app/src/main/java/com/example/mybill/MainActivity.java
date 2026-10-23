@@ -3,6 +3,7 @@ package com.example.mybill;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -26,6 +27,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -252,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Chip chipAll = new Chip(this);
+        styleDayChip(chipAll);
         chipAll.setText("全部");
         chipAll.setCheckable(true);
         chipAll.setOnClickListener(v -> {
@@ -274,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 1; i <= maxDay; i++) {
             Chip chip = new Chip(this);
+            styleDayChip(chip);
             if (counts[i] > 0) {
                 String text = i + "日(" + counts[i] + ")";
                 SpannableString sp = new SpannableString(text);
@@ -302,6 +306,23 @@ public class MainActivity extends AppCompatActivity {
 
         if (selectedDay > maxDay) selectedDay = 0;
         selectDayChip(selectedDay);
+    }
+
+    private void styleDayChip(Chip chip) {
+        int[][] states = new int[][]{
+                new int[]{android.R.attr.state_checked},
+                new int[]{}
+        };
+        chip.setChipBackgroundColor(new ColorStateList(states, new int[]{
+                ContextCompat.getColor(this, R.color.glass_chip_bg_selected),
+                ContextCompat.getColor(this, R.color.glass_chip_bg)}));
+        chip.setTextColor(new ColorStateList(states, new int[]{
+                ContextCompat.getColor(this, R.color.glass_chip_text_selected),
+                ContextCompat.getColor(this, R.color.glass_chip_text)}));
+        chip.setChipStrokeColor(ColorStateList.valueOf(
+                ContextCompat.getColor(this, R.color.glass_chip_stroke)));
+        chip.setChipStrokeWidth(getResources().getDisplayMetrics().density);
+        chip.setChipCornerRadius(14 * getResources().getDisplayMetrics().density);
     }
 
     private void selectDayChip(int day) {
@@ -391,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
             bills = filterUnsettled(bills);
         }
 
-        TextView tvEmpty = ((View) rv.getParent()).findViewById(R.id.tv_page_empty);
+        View tvEmpty = ((View) rv.getParent()).findViewById(R.id.tv_page_empty);
 
         if (bills == null || bills.isEmpty()) {
             rv.setVisibility(View.GONE);
