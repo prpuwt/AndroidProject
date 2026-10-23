@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             navigateToMonth();
         });
 
-        tvYearMonth.setOnClickListener(v -> showMonthPickerDialog());
+        tvYearMonth.setOnClickListener(v -> showCalendarPicker());
 
         MaterialButton btnToday = findViewById(R.id.btn_today);
         btnToday.setOnClickListener(v -> {
@@ -322,122 +322,30 @@ public class MainActivity extends AppCompatActivity {
         tvYearMonth.setText(String.format(Locale.getDefault(), "%d年%d月", selectedYear, selectedMonth));
     }
 
-    private void showMonthPickerDialog() {
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(24, 24, 24, 8);
+    private void showCalendarPicker() {
+        Calendar maxCal = Calendar.getInstance();
+        maxCal.set(selectedYear, selectedMonth - 1, 1);
+        int day = selectedDay > 0
+                ? Math.min(selectedDay, maxCal.getActualMaximum(Calendar.DAY_OF_MONTH))
+                : 1;
 
-        // 年份选择
-        LinearLayout yearRow = new LinearLayout(this);
-        yearRow.setOrientation(LinearLayout.HORIZONTAL);
-        yearRow.setGravity(android.view.Gravity.CENTER);
+        Calendar selection = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        selection.clear();
+        selection.set(selectedYear, selectedMonth - 1, day);
 
-        MaterialButton btnYearMinus = new MaterialButton(this, null,
-                com.google.android.material.R.attr.borderlessButtonStyle);
-        btnYearMinus.setText("−");
-        btnYearMinus.setTextSize(24);
-        btnYearMinus.setTextColor(getResources().getColor(R.color.primary_teal, null));
-
-        EditText etYear = new EditText(this);
-        etYear.setText(String.valueOf(selectedYear));
-        etYear.setTextSize(22);
-        etYear.setTextColor(getResources().getColor(R.color.text_primary, null));
-        etYear.setGravity(android.view.Gravity.CENTER);
-        etYear.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        etYear.setSingleLine();
-        LinearLayout.LayoutParams yearParams = new LinearLayout.LayoutParams(0,
-                ViewGroup.LayoutParams.WRAP_CONTENT, 1);
-        yearParams.setMargins(16, 0, 16, 0);
-        etYear.setLayoutParams(yearParams);
-
-        MaterialButton btnYearPlus = new MaterialButton(this, null,
-                com.google.android.material.R.attr.borderlessButtonStyle);
-        btnYearPlus.setText("+");
-        btnYearPlus.setTextSize(24);
-        btnYearPlus.setTextColor(getResources().getColor(R.color.primary_teal, null));
-
-        btnYearMinus.setOnClickListener(v -> {
-            int y = Integer.parseInt(etYear.getText().toString());
-            if (y > 2000) etYear.setText(String.valueOf(y - 1));
+        MaterialDatePicker<Long> picker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("选择日期")
+                .setSelection(selection.getTimeInMillis())
+                .build();
+        picker.addOnPositiveButtonClickListener(selectionMillis -> {
+            Calendar picked = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            picked.setTimeInMillis(selectionMillis);
+            selectedYear = picked.get(Calendar.YEAR);
+            selectedMonth = picked.get(Calendar.MONTH) + 1;
+            selectedDay = picked.get(Calendar.DAY_OF_MONTH);
+            navigateToMonth();
         });
-        btnYearPlus.setOnClickListener(v -> {
-            int y = Integer.parseInt(etYear.getText().toString());
-            if (y < 2100) etYear.setText(String.valueOf(y + 1));
-        });
-
-        yearRow.addView(btnYearMinus);
-        yearRow.addView(etYear);
-        yearRow.addView(btnYearPlus);
-        root.addView(yearRow);
-
-        // 月份网格
-        LinearLayout monthGrid = new LinearLayout(this);
-        monthGrid.setOrientation(LinearLayout.VERTICAL);
-        monthGrid.setPadding(0, 20, 0, 8);
-        root.addView(monthGrid);
-
-        final int[] selectedMonthInDialog = {selectedMonth};
-
-        for (int row = 0; row < 3; row++) {
-            LinearLayout rowLayout = new LinearLayout(this);
-            rowLayout.setOrientation(LinearLayout.HORIZONTAL);
-            rowLayout.setGravity(android.view.Gravity.CENTER);
-            for (int col = 0; col < 4; col++) {
-                int month = row * 4 + col + 1;
-                MaterialButton btnMonth = new MaterialButton(this, null,
-                        com.google.android.material.R.attr.borderlessButtonStyle);
-                btnMonth.setText(month + "月");
-                btnMonth.setTextSize(15);
-                btnMonth.setCornerRadius(20);
-                LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(0,
-                        DisplayUtils.dpToPx(44), 1);
-                btnParams.setMargins(4, 4, 4, 4);
-                btnMonth.setLayoutParams(btnParams);
-                updateMonthButtonStyle(btnMonth, month == selectedMonthInDialog[0]);
-                final int m = month;
-                btnMonth.setOnClickListener(v -> {
-                    if (selectedMonthInDialog[0] != m) {
-                        selectedMonthInDialog[0] = m;
-                        for (int i = 0; i < monthGrid.getChildCount(); i++) {
-                            LinearLayout rl = (LinearLayout) monthGrid.getChildAt(i);
-                            for (int j = 0; j < rl.getChildCount(); j++) {
-                                MaterialButton mb = (MaterialButton) rl.getChildAt(j);
-                                int bMonth = i * 4 + j + 1;
-                                updateMonthButtonStyle(mb, bMonth == m);
-                            }
-                        }
-                    }
-                });
-                rowLayout.addView(btnMonth);
-            }
-            monthGrid.addView(rowLayout);
-        }
-
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setView(root)
-                .setPositiveButton("确定", (d, w) -> {
-                    int year = Integer.parseInt(etYear.getText().toString());
-                    int month = selectedMonthInDialog[0];
-                    if (year >= 2000 && year <= 2100 && month >= 1 && month <= 12) {
-                        selectedYear = year;
-                        selectedMonth = month;
-                        selectedDay = 0;
-                        navigateToMonth();
-                    }
-                })
-                .setNegativeButton("取消", null)
-                .create();
-        dialog.show();
-    }
-
-    private void updateMonthButtonStyle(MaterialButton btn, boolean selected) {
-        if (selected) {
-            btn.setBackgroundColor(getResources().getColor(R.color.primary_teal, null));
-            btn.setTextColor(getResources().getColor(android.R.color.white, null));
-        } else {
-            btn.setBackgroundColor(getResources().getColor(R.color.chip_normal_bg, null));
-            btn.setTextColor(getResources().getColor(R.color.text_primary, null));
-        }
+        picker.show(getSupportFragmentManager(), "main_date_picker");
     }
 
     // ==================== ViewPager2 Adapter ====================

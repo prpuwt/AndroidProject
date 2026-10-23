@@ -40,7 +40,7 @@
     <string name="coach_desc_add">点击右上角的 + 号按钮，进入添加账单页面。选择日期、勾选工人、填写金额，最后点击「保存」即可记录一笔工钱。</string>
 
     <string name="coach_title_month">切换月份</string>
-    <string name="coach_desc_month">点击 ◀ ▶ 切换月份，点击 ◀◀ ▶▶ 切换年份。也可以直接点击中间的年月文字，快速跳转到指定年月。</string>
+    <string name="coach_desc_month">点击 ◀ ▶ 切换月份，点击 ◀◀ ▶▶ 切换年份。也可以直接点击中间的年月文字，在日历中选择具体日期并跳转。</string>
 
     <string name="coach_title_day">按天查看</string>
     <string name="coach_desc_day">点击日期数字筛选当天的账单。橙色数字表示当天有记录，点击「全部」可查看整月。左右滑动屏幕也可以切换日期。</string>

@@ -217,11 +217,10 @@
                             app:cornerRadius="16dp" />
                     </LinearLayout>
 
-                    <LinearLayout
+                    <com.example.mybill.view.FlowLayout
                         android:id="@+id/layout_locations"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:layout_marginBottom="4dp" />
 
                     <com.google.android.material.button.MaterialButton

@@ -21,8 +21,10 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.mybill.db.BillDatabaseHelper;
 import com.example.mybill.model.Bill;
+import com.example.mybill.view.FlowLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -37,7 +39,7 @@ public class AddBillActivity extends AppCompatActivity {
     private TextView tvSelectedDate;
     private TextView tvPeopleCount;
     private LinearLayout layoutPeople;
-    private LinearLayout layoutLocations;
+    private FlowLayout layoutLocations;
     private TextInputEditText etDescription;
     private BillDatabaseHelper dbHelper;
 
@@ -162,7 +164,7 @@ public class AddBillActivity extends AppCompatActivity {
         }
         boolean[] checked = new boolean[people.size()];
 
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_manage_delete, null);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_manage_list, null);
         LinearLayout layoutCheckboxList = dialogView.findViewById(R.id.layout_checkbox_list);
 
         for (int i = 0; i < people.size(); i++) {
@@ -176,7 +178,7 @@ public class AddBillActivity extends AppCompatActivity {
             layoutCheckboxList.addView(cb);
         }
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("删除人员（可多选）")
                 .setView(dialogView)
                 .setPositiveButton("删除", (d, which) -> {
@@ -213,7 +215,7 @@ public class AddBillActivity extends AppCompatActivity {
         }
         boolean[] checked = new boolean[locations.size()];
 
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_manage_delete, null);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_manage_list, null);
         LinearLayout layoutCheckboxList = dialogView.findViewById(R.id.layout_checkbox_list);
 
         for (int i = 0; i < locations.size(); i++) {
@@ -227,7 +229,7 @@ public class AddBillActivity extends AppCompatActivity {
             layoutCheckboxList.addView(cb);
         }
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("删除地点（可多选）")
                 .setView(dialogView)
                 .setPositiveButton("删除", (d, which) -> {

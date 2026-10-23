@@ -218,12 +218,24 @@ public class TrashActivity extends AppCompatActivity {
             holder.tvAmount.setText(String.format(Locale.getDefault(), "¥%.2f", bill.getAmount()));
             holder.cb.setChecked(selectedItems.get(position, false));
 
+            holder.cb.setOnClickListener(v -> {
+                int pos = holder.getAdapterPosition();
+                if (pos == RecyclerView.NO_POSITION) return;
+                if (holder.cb.isChecked()) {
+                    selectedItems.put(pos, true);
+                } else {
+                    selectedItems.delete(pos);
+                }
+            });
+
             holder.itemView.setOnClickListener(v -> {
+                int pos = holder.getAdapterPosition();
+                if (pos == RecyclerView.NO_POSITION) return;
                 holder.cb.toggle();
                 if (holder.cb.isChecked()) {
-                    selectedItems.put(position, true);
+                    selectedItems.put(pos, true);
                 } else {
-                    selectedItems.delete(position);
+                    selectedItems.delete(pos);
                 }
             });
         }

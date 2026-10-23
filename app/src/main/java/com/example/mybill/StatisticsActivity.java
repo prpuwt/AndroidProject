@@ -2,7 +2,9 @@ package com.example.mybill;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.Uri;
 import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
@@ -23,6 +25,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -123,8 +127,7 @@ public class StatisticsActivity extends AppCompatActivity {
         dotPage1 = findViewById(R.id.dot_page1);
         MaterialButton btnBack = findViewById(R.id.btn_back);
         MaterialButton btnStats = findViewById(R.id.btn_stats);
-        MaterialButton btnExport = findViewById(R.id.btn_export);
-        MaterialButton btnImport = findViewById(R.id.btn_import);
+        MaterialButton btnMenu = findViewById(R.id.btn_stats_menu);
         MaterialCardView cardStartDate = findViewById(R.id.card_start_date);
         MaterialCardView cardEndDate = findViewById(R.id.card_end_date);
 
@@ -142,8 +145,7 @@ public class StatisticsActivity extends AppCompatActivity {
         refreshPeopleChips();
 
         btnStats.setOnClickListener(v -> calculateStats());
-        btnExport.setOnClickListener(v -> backupData());
-        btnImport.setOnClickListener(v -> importLauncher.launch(new String[]{"text/*", "*/*"}));
+        btnMenu.setOnClickListener(v -> showTopMenu(v));
         btnBack.setOnClickListener(v -> finish());
 
         statsPagerAdapter = new StatsPagerAdapter();
@@ -163,6 +165,24 @@ public class StatisticsActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         handleImportIntent(intent);
+    }
+
+    private void showTopMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(this, anchor);
+        popup.getMenu().add(0, 1, 0, getString(R.string.btn_export));
+        popup.getMenu().add(0, 2, 1, getString(R.string.btn_import));
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == 1) {
+                backupData();
+                return true;
+            }
+            if (item.getItemId() == 2) {
+                importLauncher.launch(new String[]{"text/*", "*/*"});
+                return true;
+            }
+            return false;
+        });
+        popup.show();
     }
 
     private void handleImportIntent(Intent intent) {
@@ -436,9 +456,7 @@ public class StatisticsActivity extends AppCompatActivity {
         peopleChips.clear();
         allPeople.clear();
 
-        Chip chipAll = new Chip(this);
-        chipAll.setText(getString(R.string.all));
-        chipAll.setCheckable(true);
+        Chip chipAll = createPersonChip(getString(R.string.all));
         chipAll.setChecked(true);
         chipGroupPeople.addView(chipAll);
         peopleChips.add(chipAll);
@@ -450,9 +468,7 @@ public class StatisticsActivity extends AppCompatActivity {
         List<String> people = new ArrayList<>(nameSet);
 
         for (String name : people) {
-            Chip chip = new Chip(this);
-            chip.setText(name);
-            chip.setCheckable(true);
+            Chip chip = createPersonChip(name);
             chip.setOnClickListener(v -> {
                 if (chipUpdating) return;
                 // 选中具体人员时取消「全部」
@@ -480,6 +496,24 @@ public class StatisticsActivity extends AppCompatActivity {
             }
             chipUpdating = false;
         });
+    }
+
+    private Chip createPersonChip(String text) {
+        Chip chip = new Chip(this);
+        chip.setText(text);
+        chip.setCheckable(true);
+
+        int[][] states = new int[][]{
+                new int[]{android.R.attr.state_checked},
+                new int[]{}
+        };
+        chip.setChipBackgroundColor(new ColorStateList(states, new int[]{
+                ContextCompat.getColor(this, R.color.primary_teal),
+                ContextCompat.getColor(this, R.color.chip_normal_bg)}));
+        chip.setTextColor(new ColorStateList(states, new int[]{
+                Color.WHITE, ContextCompat.getColor(this, R.color.text_primary)}));
+        chip.setCheckedIconVisible(false);
+        return chip;
     }
 
     private void calculateStats() {
