@@ -314,15 +314,16 @@ public class MainActivity extends AppCompatActivity {
                 new int[]{}
         };
         chip.setChipBackgroundColor(new ColorStateList(states, new int[]{
-                ContextCompat.getColor(this, R.color.glass_chip_bg_selected),
-                ContextCompat.getColor(this, R.color.glass_chip_bg)}));
+                ContextCompat.getColor(this, R.color.day_chip_bg_selected),
+                ContextCompat.getColor(this, R.color.day_chip_bg)}));
         chip.setTextColor(new ColorStateList(states, new int[]{
-                ContextCompat.getColor(this, R.color.glass_chip_text_selected),
-                ContextCompat.getColor(this, R.color.glass_chip_text)}));
-        chip.setChipStrokeColor(ColorStateList.valueOf(
-                ContextCompat.getColor(this, R.color.glass_chip_stroke)));
+                ContextCompat.getColor(this, R.color.day_chip_text_selected),
+                ContextCompat.getColor(this, R.color.day_chip_text)}));
+        chip.setChipStrokeColor(new ColorStateList(states, new int[]{
+                ContextCompat.getColor(this, R.color.day_chip_stroke_selected),
+                ContextCompat.getColor(this, R.color.day_chip_stroke)}));
         chip.setChipStrokeWidth(getResources().getDisplayMetrics().density);
-        chip.setChipCornerRadius(14 * getResources().getDisplayMetrics().density);
+        chip.setChipCornerRadius(16 * getResources().getDisplayMetrics().density);
     }
 
     private void selectDayChip(int day) {

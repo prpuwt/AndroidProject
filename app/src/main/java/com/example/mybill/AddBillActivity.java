@@ -1,14 +1,18 @@
 package com.example.mybill;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.TransitionManager;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -35,6 +39,9 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -46,6 +53,10 @@ import java.util.Set;
 import java.util.TimeZone;
 
 public class AddBillActivity extends AppCompatActivity {
+
+    private static final String PREFS_DRAFT = "add_bill_draft";
+    private static final String KEY_DRAFT = "draft";
+    private static final long DRAFT_MAX_AGE_MS = 7L * 24 * 60 * 60 * 1000;
 
     private TextView tvSelectedDate;
     private TextView tvPeopleCount;
@@ -63,6 +74,7 @@ public class AddBillActivity extends AppCompatActivity {
     private final List<CheckBox> locationCheckboxes = new ArrayList<>();
     private ListPopupWindow amountSuggestionPopup;
     private EditText amountPopupAnchor;
+    private boolean draftCompleted;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -136,6 +148,7 @@ public class AddBillActivity extends AppCompatActivity {
         btnTogglePeople.setOnClickListener(v -> toggleAllPeople());
         btnSave.setOnClickListener(v -> saveBills());
         btnBack.setOnClickListener(v -> finish());
+        findViewById(R.id.btn_draft).setOnClickListener(v -> onDraftButtonClicked());
 
         etDescription.addTextChangedListener(new TextWatcher() {
             @Override
@@ -368,7 +381,204 @@ public class AddBillActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         dismissAmountSuggestions();
+        if (!draftCompleted) {
+            saveDraft();
+        }
         super.onStop();
+    }
+
+    // ==================== 草稿 ====================
+
+    private void saveDraft() {
+        try {
+            String description = etDescription.getText() != null
+                    ? etDescription.getText().toString().trim() : "";
+
+            JSONArray people = new JSONArray();
+            boolean hasAmount = false;
+            int checkedCount = 0;
+            for (int i = 0; i < peopleRows.size(); i++) {
+                View row = peopleRows.get(i);
+                CheckBox cb = row.findViewById(R.id.cb_person);
+                EditText et = row.findViewById(R.id.et_amount);
+                String amount = et.getText() != null ? et.getText().toString().trim() : "";
+                if (!amount.isEmpty()) hasAmount = true;
+                if (cb.isChecked()) checkedCount++;
+                JSONObject person = new JSONObject();
+                person.put("name", peopleList.get(i));
+                person.put("checked", cb.isChecked());
+                person.put("amount", amount);
+                people.put(person);
+            }
+
+            JSONArray locations = new JSONArray();
+            for (CheckBox cb : locationCheckboxes) {
+                if (cb.isChecked()) {
+                    locations.put(cb.getText().toString());
+                }
+            }
+
+            SharedPreferences prefs = getSharedPreferences(PREFS_DRAFT, MODE_PRIVATE);
+            boolean untouched = description.isEmpty() && !hasAmount
+                    && checkedCount == 0 && locations.length() == 0;
+            if (untouched) {
+                prefs.edit().remove(KEY_DRAFT).apply();
+                return;
+            }
+
+            JSONObject draft = new JSONObject();
+            draft.put("date", internalDate);
+            draft.put("description", description);
+            draft.put("locations", locations);
+            draft.put("people", people);
+            draft.put("ts", System.currentTimeMillis());
+            prefs.edit().putString(KEY_DRAFT, draft.toString()).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private boolean restoreDraft() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_DRAFT, MODE_PRIVATE);
+        String raw = prefs.getString(KEY_DRAFT, null);
+        if (raw == null) return false;
+
+        try {
+            JSONObject draft = new JSONObject(raw);
+            long ts = draft.optLong("ts", 0);
+            if (System.currentTimeMillis() - ts > DRAFT_MAX_AGE_MS) {
+                clearDraft();
+                return false;
+            }
+
+            internalDate = draft.optString("date", internalDate);
+            tvSelectedDate.setText(formatDateChinese(internalDate));
+
+            String description = draft.optString("description", "");
+            etDescription.setText(description);
+
+            JSONArray locations = draft.optJSONArray("locations");
+            if (locations != null) {
+                Set<String> selected = new HashSet<>();
+                for (int i = 0; i < locations.length(); i++) {
+                    selected.add(locations.optString(i));
+                }
+                for (CheckBox cb : locationCheckboxes) {
+                    cb.setChecked(selected.contains(cb.getText().toString()));
+                }
+            }
+
+            JSONArray people = draft.optJSONArray("people");
+            if (people != null) {
+                Map<String, JSONObject> byName = new HashMap<>();
+                for (int i = 0; i < people.length(); i++) {
+                    JSONObject person = people.optJSONObject(i);
+                    if (person != null) {
+                        byName.put(person.optString("name"), person);
+                    }
+                }
+                for (int i = 0; i < peopleRows.size(); i++) {
+                    View row = peopleRows.get(i);
+                    EditText et = row.findViewById(R.id.et_amount);
+                    CheckBox cb = row.findViewById(R.id.cb_person);
+                    et.setText("");
+                    cb.setChecked(false);
+                    JSONObject person = byName.get(peopleList.get(i));
+                    if (person == null) continue;
+                    String amount = person.optString("amount", "");
+                    if (!amount.isEmpty()) {
+                        et.setText(amount);
+                    }
+                    cb.setChecked(person.optBoolean("checked", false));
+                }
+                updatePeopleCount();
+            }
+            return true;
+        } catch (Exception e) {
+            clearDraft();
+            return false;
+        }
+    }
+
+    private void clearDraft() {
+        getSharedPreferences(PREFS_DRAFT, MODE_PRIVATE)
+                .edit().remove(KEY_DRAFT).apply();
+    }
+
+    private void onDraftButtonClicked() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_DRAFT, MODE_PRIVATE);
+        if (!prefs.contains(KEY_DRAFT)) {
+            Toast.makeText(this, "暂无草稿", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (isFormEmpty()) {
+            loadDraft();
+            return;
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("恢复草稿")
+                .setMessage("当前已填写的内容将被覆盖，确定恢复上次草稿吗？")
+                .setPositiveButton("恢复", (d, w) -> loadDraft())
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void loadDraft() {
+        if (restoreDraft()) {
+            Toast.makeText(this, "已恢复上次未保存的内容", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "暂无草稿", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean isFormEmpty() {
+        String description = etDescription.getText() != null
+                ? etDescription.getText().toString().trim() : "";
+        if (!description.isEmpty()) return false;
+
+        for (View row : peopleRows) {
+            CheckBox cb = row.findViewById(R.id.cb_person);
+            EditText et = row.findViewById(R.id.et_amount);
+            if (cb.isChecked()) return false;
+            if (et.getText() != null && et.getText().toString().trim().length() > 0) return false;
+        }
+        for (CheckBox cb : locationCheckboxes) {
+            if (cb.isChecked()) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            View focused = getCurrentFocus();
+            if (focused instanceof EditText && !isTouchOnInput(ev)) {
+                focused.clearFocus();
+                InputMethodManager imm =
+                        (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(focused.getWindowToken(), 0);
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    private boolean isTouchOnInput(MotionEvent ev) {
+        float x = ev.getRawX();
+        float y = ev.getRawY();
+        if (isPointInside(x, y, etDescription)) return true;
+        for (View row : peopleRows) {
+            EditText et = row.findViewById(R.id.et_amount);
+            if (isPointInside(x, y, et)) return true;
+        }
+        return false;
+    }
+
+    private boolean isPointInside(float x, float y, View view) {
+        if (view == null) return false;
+        Rect rect = new Rect();
+        if (!view.getGlobalVisibleRect(rect)) return false;
+        return rect.contains((int) x, (int) y);
     }
 
     private void showManagePeopleDialog() {
@@ -647,6 +857,8 @@ public class AddBillActivity extends AppCompatActivity {
                             + " 在今天已有账单，是否继续添加？")
                     .setPositiveButton("继续添加", (d, w) -> {
                         dbHelper.insertBills(bills);
+                        clearDraft();
+                        draftCompleted = true;
                         Toast.makeText(this, getString(R.string.save_success), Toast.LENGTH_SHORT).show();
                         finish();
                     })
@@ -654,6 +866,8 @@ public class AddBillActivity extends AppCompatActivity {
                     .show();
         } else {
             dbHelper.insertBills(bills);
+            clearDraft();
+            draftCompleted = true;
             Toast.makeText(this, getString(R.string.save_success), Toast.LENGTH_SHORT).show();
             finish();
         }

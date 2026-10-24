@@ -148,6 +148,7 @@ public class TrashActivity extends AppCompatActivity {
     }
 
     private void updateAfterOperation() {
+        if (adapter != null) adapter.clearSelection();
         cbSelectAll.setOnCheckedChangeListener(null);
         cbSelectAll.setChecked(false);
         cbSelectAll.setOnCheckedChangeListener((v, checked) -> {
@@ -188,6 +189,11 @@ public class TrashActivity extends AppCompatActivity {
                     selectedItems.put(i, true);
                 }
             }
+            notifyDataSetChanged();
+        }
+
+        void clearSelection() {
+            selectedItems.clear();
             notifyDataSetChanged();
         }
 

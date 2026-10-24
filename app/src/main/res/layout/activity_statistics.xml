@@ -202,11 +202,11 @@
             android:id="@+id/btn_stats"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:text="@string/btn_stats"
             android:textSize="16sp"
             android:textColor="@color/mint_button_text"
-            app:backgroundTint="@color/mint_button_bg"
+            app:backgroundTint="@color/stats_button_bg"
             app:cornerRadius="24dp" />
 
         <!-- 页面指示器 -->

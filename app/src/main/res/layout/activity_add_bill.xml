@@ -38,9 +38,18 @@
             android:textStyle="bold"
             android:gravity="center" />
 
-        <View
-            android:layout_width="48dp"
-            android:layout_height="48dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_draft"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:minWidth="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingHorizontal="10dp"
+            android:text="草稿"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
 
     </com.example.mybill.view.AuroraTopBar>
 
@@ -61,8 +70,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/date_card_bg"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="1dp"
+                app:strokeColor="#80FFFFFF"
+                app:strokeWidth="1dp"
                 android:clickable="true"
                 android:focusable="true">
 
@@ -71,13 +83,14 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/date_label"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginEnd="12dp" />
 
@@ -88,14 +101,14 @@
                         android:layout_weight="1"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/primary_teal"
+                        android:textColor="@color/mint_button_text"
                         tools:text="2026年6月3日" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📅"
-                        android:textSize="20sp" />
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:contentDescription="选择日期"
+                        android:src="@drawable/ic_calendar" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
