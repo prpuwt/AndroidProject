@@ -137,7 +137,21 @@
                             android:text="已选0人"
                             android:textSize="13sp"
                             android:textColor="@color/primary_teal"
-                            android:layout_marginEnd="8dp" />
+                            android:layout_marginEnd="6dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_toggle_people"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:minWidth="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="8dp"
+                            android:layout_marginEnd="4dp"
+                            android:text="全选"
+                            android:textColor="@color/primary_teal"
+                            android:textSize="12sp" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_manage_people"
@@ -237,6 +251,7 @@
 
             <!-- 事项说明 -->
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"

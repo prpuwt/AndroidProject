@@ -3,18 +3,24 @@ package com.example.mybill;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListPopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -27,11 +33,16 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 public class AddBillActivity extends AppCompatActivity {
@@ -41,6 +52,8 @@ public class AddBillActivity extends AppCompatActivity {
     private LinearLayout layoutPeople;
     private FlowLayout layoutLocations;
     private TextInputEditText etDescription;
+    private TextInputLayout tilDescription;
+    private MaterialButton btnTogglePeople;
     private BillDatabaseHelper dbHelper;
 
     private String internalDate;
@@ -48,6 +61,8 @@ public class AddBillActivity extends AppCompatActivity {
     private List<String> locationList = new ArrayList<>();
     private final List<View> peopleRows = new ArrayList<>();
     private final List<CheckBox> locationCheckboxes = new ArrayList<>();
+    private ListPopupWindow amountSuggestionPopup;
+    private EditText amountPopupAnchor;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -78,6 +93,8 @@ public class AddBillActivity extends AppCompatActivity {
         layoutPeople = findViewById(R.id.layout_people);
         layoutLocations = findViewById(R.id.layout_locations);
         etDescription = findViewById(R.id.et_description);
+        tilDescription = findViewById(R.id.til_description);
+        btnTogglePeople = findViewById(R.id.btn_toggle_people);
         MaterialButton btnSave = findViewById(R.id.btn_save);
         MaterialButton btnBack = findViewById(R.id.btn_back);
         MaterialButton btnAddPerson = findViewById(R.id.btn_add_person);
@@ -116,8 +133,24 @@ public class AddBillActivity extends AppCompatActivity {
         btnAddLocation.setOnClickListener(v -> showAddLocationDialog());
         btnManagePeople.setOnClickListener(v -> showManagePeopleDialog());
         btnManageLocations.setOnClickListener(v -> showManageLocationsDialog());
+        btnTogglePeople.setOnClickListener(v -> toggleAllPeople());
         btnSave.setOnClickListener(v -> saveBills());
         btnBack.setOnClickListener(v -> finish());
+
+        etDescription.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                tilDescription.setError(null);
+            }
+        });
     }
 
     @Override
@@ -129,6 +162,17 @@ public class AddBillActivity extends AppCompatActivity {
     // ==================== 人员列表 ====================
 
     private void refreshPeople() {
+        dismissAmountSuggestions();
+        Map<String, Boolean> checkedStates = new HashMap<>();
+        Map<String, String> amountStates = new HashMap<>();
+        for (View row : peopleRows) {
+            CheckBox cb = row.findViewById(R.id.cb_person);
+            EditText et = row.findViewById(R.id.et_amount);
+            String name = cb.getText().toString();
+            checkedStates.put(name, cb.isChecked());
+            amountStates.put(name, et.getText() != null ? et.getText().toString() : "");
+        }
+
         TransitionManager.beginDelayedTransition(layoutPeople);
         layoutPeople.removeAllViews();
         peopleRows.clear();
@@ -136,6 +180,16 @@ public class AddBillActivity extends AppCompatActivity {
 
         for (String name : peopleList) {
             View row = createPersonRow(name);
+            EditText et = row.findViewById(R.id.et_amount);
+            String amount = amountStates.get(name);
+            if (amount != null && !amount.isEmpty()) {
+                et.setText(amount);
+            }
+            CheckBox cb = row.findViewById(R.id.cb_person);
+            Boolean wasChecked = checkedStates.get(name);
+            if (wasChecked != null) {
+                cb.setChecked(wasChecked);
+            }
             layoutPeople.addView(row);
             peopleRows.add(row);
         }
@@ -146,14 +200,175 @@ public class AddBillActivity extends AppCompatActivity {
         View row = LayoutInflater.from(this).inflate(R.layout.item_person_amount, layoutPeople, false);
         CheckBox cb = row.findViewById(R.id.cb_person);
         cb.setText(name);
+        TextInputLayout tilAmount = row.findViewById(R.id.til_amount);
 
-        cb.setOnCheckedChangeListener((buttonView, isChecked) -> updatePeopleCount());
+        cb.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!isChecked) {
+                tilAmount.setError(null);
+            }
+            updatePeopleCount();
+        });
         row.setOnClickListener(v -> {
             cb.setChecked(!cb.isChecked());
             updatePeopleCount();
         });
 
+        EditText etAmount = row.findViewById(R.id.et_amount);
+        etAmount.setOnClickListener(v -> showAmountSuggestions(etAmount));
+        etAmount.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                v.post(() -> showAmountSuggestions(etAmount));
+            }
+        });
+        etAmount.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                dismissAmountSuggestions();
+                tilAmount.setError(null);
+                if (s.length() > 0 && !cb.isChecked()) {
+                    cb.setChecked(true);
+                }
+            }
+        });
+
         return row;
+    }
+
+    private void showAmountSuggestions(EditText target) {
+        if (amountSuggestionPopup != null && amountSuggestionPopup.isShowing()
+                && amountPopupAnchor == target) {
+            return;
+        }
+        List<String> suggestions = collectOtherAmounts(target);
+        if (suggestions.isEmpty()) return;
+
+        dismissAmountSuggestions();
+        ListPopupWindow popup = new ListPopupWindow(this);
+        popup.setAdapter(new AmountSuggestionAdapter(suggestions, target));
+        popup.setAnchorView(target);
+        popup.setWidth(ListPopupWindow.WRAP_CONTENT);
+        popup.setModal(false);
+        popup.setInputMethodMode(ListPopupWindow.INPUT_METHOD_NOT_NEEDED);
+        popup.setVerticalOffset(Math.round(4 * getResources().getDisplayMetrics().density));
+        popup.setBackgroundDrawable(ContextCompat.getDrawable(this, R.drawable.bg_amount_popup));
+        popup.setPromptView(createSuggestionHeader());
+        popup.show();
+        amountSuggestionPopup = popup;
+        amountPopupAnchor = target;
+    }
+
+    private View createSuggestionHeader() {
+        TextView header = new TextView(this);
+        header.setText("其他人已填金额");
+        header.setTextSize(12);
+        header.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+        int hPad = Math.round(16 * getResources().getDisplayMetrics().density);
+        int vPad = Math.round(8 * getResources().getDisplayMetrics().density);
+        header.setPadding(hPad, vPad, hPad, vPad / 2);
+        return header;
+    }
+
+    private void fillAmount(EditText target, String amount) {
+        target.setText(amount);
+        target.setSelection(amount.length());
+    }
+
+    private void applyAmountToChecked(String amount) {
+        int count = 0;
+        for (View row : peopleRows) {
+            CheckBox cb = row.findViewById(R.id.cb_person);
+            if (!cb.isChecked()) continue;
+            EditText et = row.findViewById(R.id.et_amount);
+            et.setText(amount);
+            et.setSelection(et.getText().length());
+            count++;
+        }
+        dismissAmountSuggestions();
+        if (count == 0) {
+            Toast.makeText(this, "请先勾选人员", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "已为勾选的 " + count + " 人填入 ¥" + amount,
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class AmountSuggestionAdapter extends BaseAdapter {
+
+        private final List<String> amounts;
+        private final EditText target;
+        private final LayoutInflater inflater = LayoutInflater.from(AddBillActivity.this);
+
+        AmountSuggestionAdapter(List<String> amounts, EditText target) {
+            this.amounts = amounts;
+            this.target = target;
+        }
+
+        @Override
+        public int getCount() {
+            return amounts.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return amounts.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.item_amount_suggestion, parent, false);
+            }
+            String amount = amounts.get(position);
+            TextView tvAmount = convertView.findViewById(R.id.tv_suggestion_amount);
+            TextView tvApplyAll = convertView.findViewById(R.id.tv_apply_all);
+            tvAmount.setText("¥ " + amount);
+            convertView.setOnClickListener(v -> {
+                fillAmount(target, amount);
+                dismissAmountSuggestions();
+            });
+            tvApplyAll.setOnClickListener(v -> applyAmountToChecked(amount));
+            return convertView;
+        }
+    }
+
+    private List<String> collectOtherAmounts(EditText target) {
+        List<String> amounts = new ArrayList<>();
+        for (View row : peopleRows) {
+            EditText et = row.findViewById(R.id.et_amount);
+            if (et == target) continue;
+            String text = et.getText() != null ? et.getText().toString().trim() : "";
+            if (!text.isEmpty() && !amounts.contains(text)) {
+                amounts.add(text);
+            }
+        }
+        return amounts;
+    }
+
+    private void dismissAmountSuggestions() {
+        if (amountSuggestionPopup != null && amountSuggestionPopup.isShowing()) {
+            amountSuggestionPopup.dismiss();
+        }
+        amountSuggestionPopup = null;
+        amountPopupAnchor = null;
+    }
+
+    @Override
+    protected void onStop() {
+        dismissAmountSuggestions();
+        super.onStop();
     }
 
     private void showManagePeopleDialog() {
@@ -205,6 +420,29 @@ public class AddBillActivity extends AppCompatActivity {
             if (cb.isChecked()) count++;
         }
         tvPeopleCount.setText(String.format(Locale.getDefault(), "已选%d人", count));
+        if (btnTogglePeople != null) {
+            boolean allSelected = !peopleRows.isEmpty() && count == peopleRows.size();
+            btnTogglePeople.setText(allSelected ? "清空" : "全选");
+            btnTogglePeople.setEnabled(!peopleRows.isEmpty());
+        }
+    }
+
+    private void toggleAllPeople() {
+        if (peopleRows.isEmpty()) return;
+        boolean allSelected = true;
+        for (View row : peopleRows) {
+            CheckBox cb = row.findViewById(R.id.cb_person);
+            if (!cb.isChecked()) {
+                allSelected = false;
+                break;
+            }
+        }
+        boolean target = !allSelected;
+        for (View row : peopleRows) {
+            CheckBox cb = row.findViewById(R.id.cb_person);
+            cb.setChecked(target);
+        }
+        updatePeopleCount();
     }
 
     private void showManageLocationsDialog() {
@@ -273,6 +511,14 @@ public class AddBillActivity extends AppCompatActivity {
     // ==================== 地点（可多选） ====================
 
     private void refreshLocations() {
+        dismissAmountSuggestions();
+        Set<String> selected = new HashSet<>();
+        for (CheckBox cb : locationCheckboxes) {
+            if (cb.isChecked()) {
+                selected.add(cb.getText().toString());
+            }
+        }
+
         layoutLocations.removeAllViews();
         locationCheckboxes.clear();
         locationList = dbHelper.getAllLocations();
@@ -281,6 +527,7 @@ public class AddBillActivity extends AppCompatActivity {
             CheckBox cb = (CheckBox) LayoutInflater.from(this)
                     .inflate(R.layout.item_location_checkbox, layoutLocations, false);
             cb.setText(loc);
+            cb.setChecked(selected.contains(loc));
             layoutLocations.addView(cb);
             locationCheckboxes.add(cb);
         }
@@ -310,9 +557,16 @@ public class AddBillActivity extends AppCompatActivity {
     // ==================== 保存 ====================
 
     private void saveBills() {
+        dismissAmountSuggestions();
+        tilDescription.setError(null);
+        for (View row : peopleRows) {
+            ((TextInputLayout) row.findViewById(R.id.til_amount)).setError(null);
+        }
+
         String description = etDescription.getText() != null ? etDescription.getText().toString().trim() : "";
         if (description.isEmpty()) {
-            etDescription.setError(getString(R.string.description_required));
+            tilDescription.setError(getString(R.string.description_required));
+            etDescription.requestFocus();
             return;
         }
 
@@ -339,19 +593,23 @@ public class AddBillActivity extends AppCompatActivity {
             if (cb.isChecked()) {
                 String personName = peopleList.get(i);
                 String amountStr = etAmount.getText().toString().trim();
+                TextInputLayout tilAmount = row.findViewById(R.id.til_amount);
                 if (amountStr.isEmpty()) {
-                    Toast.makeText(this, "请输入 " + personName + " 的金额", Toast.LENGTH_SHORT).show();
+                    tilAmount.setError("请输入金额");
+                    etAmount.requestFocus();
                     return;
                 }
                 double amount;
                 try {
                     amount = Double.parseDouble(amountStr);
                 } catch (NumberFormatException e) {
-                    Toast.makeText(this, personName + " 金额格式不正确", Toast.LENGTH_SHORT).show();
+                    tilAmount.setError("金额格式不正确");
+                    etAmount.requestFocus();
                     return;
                 }
                 if (amount <= 0) {
-                    Toast.makeText(this, personName + " 金额必须大于0", Toast.LENGTH_SHORT).show();
+                    tilAmount.setError("金额必须大于0");
+                    etAmount.requestFocus();
                     return;
                 }
                 bills.add(new Bill(internalDate, personName, location, description, amount));

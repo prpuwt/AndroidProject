@@ -768,7 +768,10 @@ public class StatisticsActivity extends AppCompatActivity {
                 tvGrandTotal.setGravity(android.view.Gravity.CENTER);
                 tvGrandTotal.setPadding(12, 12, 12, 12);
                 tvGrandTotal.setBackgroundColor(0xFFFFFFFF);
-                root.addView(tvGrandTotal, 0);
+                LinearLayout.LayoutParams totalLp = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                totalLp.bottomMargin = Math.round(8 * getResources().getDisplayMetrics().density);
+                root.addView(tvGrandTotal, 0, totalLp);
 
             } else {
                 View chartsView = ((ScrollView) holder.itemView).getChildAt(0);
